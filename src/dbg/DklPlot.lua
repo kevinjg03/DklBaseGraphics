@@ -29,6 +29,10 @@ function DklBaseGraphics:plot(x,y,args)
 		self:points(x,y,args)
 	elseif (type=="l" or type=="o" or type=="b") then
 		self:lines(x,y,args)
+	elseif (type=="t" or type=="o" or type=="b") then
+		self:triangleBar(x,y,args)
+	elseif (type=="rb" or type=="o" or type=="b") then
+		self:radialBar(x,y,args)
 	end
 	if (axes) then
 		self:axis(1,args)
@@ -39,6 +43,7 @@ function DklBaseGraphics:plot(x,y,args)
 		self:title(args)
 	end
 end
+
 
 function DklBaseGraphics:points(x,y,args)
 	args = args or {}
@@ -176,3 +181,61 @@ function DklBaseGraphics:identify(x,y,args)
 	popMatrix()
 	noEvent()
 end
+
+function DklBaseGraphics:triangleBar(x,y,args) --(x,y,orientation,args)
+	args = args or {}
+
+	local col = args.col or self.plt.col
+	local _col = type(col) == "table" and col[1] or col
+	stroke(_col)
+
+	local lwd = args.lwd or self.plt.lwd
+	local _lwd = type(lwd) == "table" and lwd[1] or lwd
+	strokeWeight(_lwd)
+	
+	pushMatrix()
+	translate(self.fig.xoff,self.fig.yoff)
+	translate(self.plt.xoff,self.plt.yoff)
+	translate(-self.plt.usr[1]*self.plt.xscl,self.plt.usr[3]*self.plt.yscl)
+	
+	
+	for i=1,#x do
+		--if (orientation == 'v') then 
+			triangle((x[i]*self.plt.xscl)-30,-10*self.plt.yscl,x[i]*self.plt.xscl,-y[i]*self.plt.yscl,(x[i]*self.plt.xscl)+30,-10*self.plt.yscl)
+		--elseif (orientation == 'h') then
+		--	triangle(-10*self.plt.yscl,(x[i]*self.plt.xscl)-30,-y[i]*self.plt.yscl,x[i]*self.plt.xscl,-10*self.plt.yscl,(x[i]*self.plt.xscl)+30)
+		--end
+	end
+	popMatrix()
+end
+
+function DklBaseGraphics:radialBar(x,y,args)
+	args = args or {}
+
+	local col = args.col or self.plt.col
+	local _col = type(col) == "table" and col[1] or col
+	stroke(_col)
+
+	local lwd = args.lwd or self.plt.lwd
+	local _lwd = type(lwd) == "table" and lwd[1] or lwd
+	strokeWeight(_lwd)
+	
+	pushMatrix()
+	translate(self.fig.xoff,self.fig.yoff)
+	translate(self.plt.xoff,self.plt.yoff)
+	translate(-self.plt.usr[1]*self.plt.xscl,self.plt.usr[3]*self.plt.yscl)
+	
+	for i=1,#x do
+		local lastAngle = 0;
+		for j=1,#x do
+			local gray = map(j, 0 , #x, 0, 255);
+			fill(gray);
+			arc(x[i]*self.plt.xscl, -y[i]*self.plt.yscl, 10*self.plt.xscl, 10*self.plt.xscl, lastAngle, lastAngle+radians(x[j]));
+			lastAngle = lastAngle + radians(x[j]);
+		end
+
+	end
+	popMatrix()
+end
+
+
